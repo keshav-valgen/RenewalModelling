@@ -7,23 +7,56 @@ names(data)
 # Finding recency
 data2 = read.csv("C:/Users/Sudhakar/Desktop/Renewal Mdelling/2.R.Data.Extraction.csv")
 
+# # Mode function
+# Mode <- function(x) {
+#   ux <- unique(x)
+#   ux[which.max(tabulate(match(x, ux)))]
+# Handling for categorical data
+#if(is.factor(data[,i])){
+# a = data[,i][which.max(data[,i])]
+# a = data.frame(a)
+# data[,i] <- ifelse(is.na(data[,i]),a$a,data[,i])
+# } else
+#
+#}
+
+# Handling Missing values with differnt types of fields
+data = data2
+for(i in 1:ncol(data)){
+  if(is.numeric(data[,i]) == TRUE){
+    data[,i] <- ifelse(is.na(data[,i]),median(data[,i]),data[,i])
+  }
+}
+
+
 # Finding summary on the dependet variables
 table(data2$RENEWAL_STATUS__c)
 able(data2$ORDER_NUMBER__c)
 table(data2$NET_UNITS__c)
 no_of_orderss = sqldf("select RENEWAL_STATUS__C,count(ORDER_NUMBER__C) as No_of_Orders, count(NET_UNITS__C) from data2 group by RENEWAL_STATUS__C")
-no_of_orderss = sqldf("select RENEWAL_STATUS__C,count(NET_UNITS__C) as No_Of_units from data2 group by RENEWAL_STATUS__C")
+
+no_of_accts = sqldf("select RENEWAL_STATUS__C , sum()")
+
+
+no_of_orders = sqldf("select RENEWAL_STATUS__C,count(RENEWAL_STATUS__C) as No_Of_units from data2 group by NET_UNITS__C")
+no_of_orderss = sqldf("select RENEWAL_STATUS__C,sum(No_of_units) as Of_units from no_of_orders group by RENEWAL_STATUS__C")
 
 
 library(dplyr)
 library(sqldf)
 names(data2)
 
-data = data2
-# Omit na values in the dataset
-table(is.na(data$ACTUAL_RENEWAL_DATE__c))
-data = na.omit(data)
-
+# data = data2
+# # Omit na values in the dataset
+# table(is.na(data$ACTUAL_RENEWAL_DATE__c))
+# data = na.omit(data)
+# names(data)[1] <- "ACCT_ID__c"
+# names(data)[2] <- "ORDER_TYPE__c"
+# names(data)[3] <- "Name"
+# names(data)[4] <- "ORDER_RENEWAL_DATE__c"
+# names(data)[5] <- "NET_UNITS__c"
+# names(data)[6] <- "PRICE_PER_UNIT__c"
+# names(data)[7] <- "REVENUE__c"
 
 output = prediction(data$ACCT_ID__c,
                     data$ORDER_TYPE__c,
@@ -33,7 +66,7 @@ output = prediction(data$ACCT_ID__c,
                     data$PRICE_PER_UNIT__c,
                     data$REVENUE__c)
 
-
+     data = na.omit(data)
 prediction <-  function(Customer_id,
                         Order_id,
                         product_name,
