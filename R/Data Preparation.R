@@ -30,16 +30,9 @@ for(i in 1:ncol(data)){
 
 
 # Finding summary on the dependet variables
-table(data2$RENEWAL_STATUS__c)
-able(data2$ORDER_NUMBER__c)
-table(data2$NET_UNITS__c)
-no_of_orderss = sqldf("select RENEWAL_STATUS__C,count(ORDER_NUMBER__C) as No_of_Orders, count(NET_UNITS__C) from data2 group by RENEWAL_STATUS__C")
-
-no_of_accts = sqldf("select RENEWAL_STATUS__C , sum()")
-
-
 no_of_orders = sqldf("select RENEWAL_STATUS__C,count(RENEWAL_STATUS__C) as No_Of_units from data2 group by NET_UNITS__C")
-no_of_orderss = sqldf("select RENEWAL_STATUS__C,sum(No_of_units) as Of_units from no_of_orders group by RENEWAL_STATUS__C")
+no_of_Accounts = sqldf("select RENEWAL_STATUS__C,count(ACCT_ID__c) as Of_units from data2 group by RENEWAL_STATUS__C")
+no_of_Accounts = sqldf("select RENEWAL_STATUS__C,sum(NET_UNITS__c) as Of_units from data2 group by RENEWAL_STATUS__C")
 
 
 library(dplyr)
