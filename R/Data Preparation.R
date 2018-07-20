@@ -6,7 +6,14 @@ names(data)
 
 # Finding recency
 data2 = read.csv("C:/Users/Sudhakar/Desktop/Renewal Mdelling/2.R.Data.Extraction.csv")
-#data = data[,-c(8:10)]
+
+# Finding summary on the dependet variables
+table(data2$RENEWAL_STATUS__c)
+able(data2$ORDER_NUMBER__c)
+table(data2$NET_UNITS__c)
+no_of_orderss = sqldf("select RENEWAL_STATUS__C,count(ORDER_NUMBER__C) as No_of_Orders, count(NET_UNITS__C) from data2 group by RENEWAL_STATUS__C")
+no_of_orderss = sqldf("select RENEWAL_STATUS__C,count(NET_UNITS__C) as No_Of_units from data2 group by RENEWAL_STATUS__C")
+
 
 library(dplyr)
 library(sqldf)
