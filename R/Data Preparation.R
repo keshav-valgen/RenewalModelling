@@ -7,10 +7,7 @@ names(data)
 # Finding recency
 data2 = read.csv("C:/Users/Sudhakar/Desktop/Renewal Mdelling/2.R.Data.Extraction.csv")
 
-# # Mode function
-# Mode <- function(x) {
-#   ux <- unique(x)
-#   ux[which.max(tabulate(match(x, ux)))]
+# # Mode function to handle categorical Missing values
 # Handling for categorical data
 #if(is.factor(data[,i])){
 # a = data[,i][which.max(data[,i])]
@@ -30,9 +27,11 @@ for(i in 1:ncol(data)){
 
 
 # Finding summary on the dependet variables
-no_of_orders = sqldf("select RENEWAL_STATUS__C,count(RENEWAL_STATUS__C) as No_Of_units from data2 group by NET_UNITS__C")
-no_of_Accounts = sqldf("select RENEWAL_STATUS__C,count(ACCT_ID__c) as Of_units from data2 group by RENEWAL_STATUS__C")
-no_of_Accounts = sqldf("select RENEWAL_STATUS__C,sum(NET_UNITS__c) as Of_units from data2 group by RENEWAL_STATUS__C")
+no_of_Accounts = sqldf("select RENEWAL_STATUS__C,count(RENEWAL_STATUS__C) as No_Of_Accts
+                       ,sum(NET_UNITS__c) as No_Of_units
+                       ,count(ORDER_NUMBER__c) as no_of_orders from data2 group by RENEWAL_STATUS__c")
+# no_of_units = sqldf("select RENEWAL_STATUS__C,sum(NET_UNITS__c) as No_Of_units from data2 group by RENEWAL_STATUS__C")
+# no_of_orders = sqldf("select RENEWAL_STATUS__C,sum(NET_UNITS__c) as Of_units from data2 group by RENEWAL_STATUS__C")
 
 
 library(dplyr)
@@ -51,6 +50,21 @@ names(data2)
 # names(data)[6] <- "PRICE_PER_UNIT__c"
 # names(data)[7] <- "REVENUE__c"
 
+
+
+# Outlier  detection - Univariate Approach (For Numeric)
+
+outliers = function(data){
+  for (i in 1:ncol(data)) {
+    outlier_values <- boxplot.stats(data[,i])$out
+    for (j in 1:length(outlier_values)) {
+      data[,i] <- ifelse(data[,i] == outlier_values[j], median(data[,i]), data[,i])
+    }
+  }
+
+}
+
+
 output = prediction(data$ACCT_ID__c,
                     data$ORDER_TYPE__c,
                     data$Name,
@@ -60,6 +74,8 @@ output = prediction(data$ACCT_ID__c,
                     data$REVENUE__c)
 
      data = na.omit(data)
+
+
 prediction <-  function(Customer_id,
                         Order_id,
                         product_name,
