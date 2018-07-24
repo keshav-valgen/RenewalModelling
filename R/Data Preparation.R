@@ -17,6 +17,18 @@ data2 = read.csv("C:/Users/Sudhakar/Desktop/Renewal Mdelling/2.R.Data.Extraction
 #
 #}
 
+############################ Handling Outliers with automation #########
+library(outliers)
+library(rAverage)
+data(pasta)
+model <- rav(pasta, subset="s04", lev=c(3,3), names=c("Price","Packaging"))
+outlier.replace(model, value=mean)
+outlier.replace(model, whichModel="IC", value=NA)
+
+out_data = outliers1(inputData)
+
+########################################################################
+
 # Handling Missing values with differnt types of fields
 data = data2
 for(i in 1:ncol(data)){
