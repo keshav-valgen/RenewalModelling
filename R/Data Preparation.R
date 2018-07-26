@@ -7,7 +7,44 @@ names(data)
 # Finding recency
 data2 = read.csv("C:/Users/Sudhakar/Desktop/Renewal Mdelling/2.R.Data.Extraction.csv")
 
-# # Mode function to handle categorical Missing values
+
+misssing_mean(data)
+misssing_median(data)
+misssing_mode(data)
+separate_missing_data(data)
+# Handling Missing values with Mean, Median, Mode
+misssing_mean <- function(data){
+  for(i in 1:ncol(data)){
+    if (is.numeric(data[,i])) {
+      data[,i] <- ifelse(is.na(data[,i]), mean(data[,i]), data[,i])
+    }
+  }
+}
+
+misssing_median <- function(data){
+  for(i in 1:ncol(data)){
+    if (is.numeric(data[,i])) {
+      data[,i] <- ifelse(is.na(data[,i]), median(data[,i]), data[,i])
+    }
+  }
+}
+
+misssing_mode <- function(data){
+  for(i in 1:ncol(data)){
+    if(is.factor(data[,i])){
+       a = data[,i][which.max(data[,i])]
+       a = data.frame(a)
+       data[,i] <- ifelse(is.na(data[,i]),a$a,data[,i])
+      }
+  }
+}
+
+separate_missing_data <- function(data){
+  new_DF <- data[rowSums(is.na(data)) > 0,]
+}
+
+
+
 # Handling for categorical data
 #if(is.factor(data[,i])){
 # a = data[,i][which.max(data[,i])]
@@ -50,30 +87,13 @@ library(dplyr)
 library(sqldf)
 names(data2)
 
-# data = data2
-# # Omit na values in the dataset
-# table(is.na(data$ACTUAL_RENEWAL_DATE__c))
-# data = na.omit(data)
-# names(data)[1] <- "ACCT_ID__c"
-# names(data)[2] <- "ORDER_TYPE__c"
-# names(data)[3] <- "Name"
-# names(data)[4] <- "ORDER_RENEWAL_DATE__c"
-# names(data)[5] <- "NET_UNITS__c"
-# names(data)[6] <- "PRICE_PER_UNIT__c"
-# names(data)[7] <- "REVENUE__c"
-
-
 
 # Outlier  detection - Univariate Approach (For Numeric)
 
 outliers = function(data){
   for (i in 1:ncol(data)) {
     outlier_values <- boxplot.stats(data[,i])$out
-    for (j in 1:length(outlier_values)) {
-      data[,i] <- ifelse(data[,i] == outlier_values[j], median(data[,i]), data[,i])
-    }
   }
-
 }
 
 
@@ -85,7 +105,6 @@ output = prediction(data$ACCT_ID__c,
                     data$PRICE_PER_UNIT__c,
                     data$REVENUE__c)
 
-     data = na.omit(data)
 
 
 prediction <-  function(Customer_id,
