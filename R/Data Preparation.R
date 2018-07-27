@@ -8,18 +8,23 @@ names(data)
 data2 = read.csv("C:/Users/Sudhakar/Desktop/Renewal Mdelling/2.R.Data.Extraction.csv")
 
 
-misssing_mean(data)
-misssing_median(data)
-misssing_mode(data)
-separate_missing_data(data)
+missing_mean <-  misssing_mean(data2)
+missing_median <- misssing_median(data2)
+missing_mode <- misssing_mode(data2)
+missing_separate <- separate_missing_data(data2)
 # Handling Missing values with Mean, Median, Mode
 misssing_mean <- function(data){
   for(i in 1:ncol(data)){
     if (is.numeric(data[,i])) {
-      data[,i] <- ifelse(is.na(data[,i]), mean(data[,i]), data[,i])
+      data[,i] <- ifelse(is.na(data[,i]), mean(data[,i], na.rm = T), data[,i])
     }
   }
+  return(data)
 }
+
+data2 <- lapply(data2, function(x) ifelse(is.na(x), mean(x, na.rm = TRUE), x))
+
+
 
 misssing_median <- function(data){
   for(i in 1:ncol(data)){
