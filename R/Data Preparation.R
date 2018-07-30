@@ -7,31 +7,32 @@ names(data)
 # Finding recency
 data2 = read.csv("C:/Users/Sudhakar/Desktop/Renewal Mdelling/2.R.Data.Extraction.csv")
 
+# Separate all numeric columns
+library("dplyr")
+data_numeric = select_if(data2, is.numeric)
+data_categorical <- select_if(data2, is.factor)
 
-missing_mean <-  misssing_mean(data2)
-missing_median <- misssing_median(data2)
-missing_mode <- misssing_mode(data2)
+missing_mean <-  misssing_mean(data_numeric)
+missing_median <- misssing_median(data_numeric)
+missing_mode <- misssing_mode(data_numeric)
 missing_separate <- separate_missing_data(data2)
 # Handling Missing values with Mean, Median, Mode
+
+
 misssing_mean <- function(data){
-  for(i in 1:ncol(data)){
-    if (is.numeric(data[,i])) {
-      data[,i] <- ifelse(is.na(data[,i]), mean(data[,i], na.rm = T), data[,i])
-    }
-  }
+  data <- lapply(data, function(x) ifelse(is.na(x), mean(x, na.rm = TRUE), x))
+  data <- data.frame(data)
   return(data)
 }
 
-data2 <- lapply(data2, function(x) ifelse(is.na(x), mean(x, na.rm = TRUE), x))
+data3 <- lapply(data2, function(x) ifelse(is.na(x), which.max(x)))
 
 
 
 misssing_median <- function(data){
-  for(i in 1:ncol(data)){
-    if (is.numeric(data[,i])) {
-      data[,i] <- ifelse(is.na(data[,i]), median(data[,i]), data[,i])
-    }
-  }
+  data <- lapply(data, function(x) ifelse(is.na(x), median(x, na.rm = TRUE), x))
+  data <- data.frame(data)
+  return(data)
 }
 
 misssing_mode <- function(data){
@@ -67,17 +68,15 @@ model <- rav(pasta, subset="s04", lev=c(3,3), names=c("Price","Packaging"))
 outlier.replace(model, value=mean)
 outlier.replace(model, whichModel="IC", value=NA)
 
+outliers = function(data){
+  for (i in 1:ncol(data)) {
+    outlier_values <- boxplot.stats(data[,i])$out
+  }
+}
+
 out_data = outliers1(inputData)
 
 ########################################################################
-
-# Handling Missing values with differnt types of fields
-data = data2
-for(i in 1:ncol(data)){
-  if(is.numeric(data[,i]) == TRUE){
-    data[,i] <- ifelse(is.na(data[,i]),median(data[,i]),data[,i])
-  }
-}
 
 
 # Finding summary on the dependet variables
@@ -95,11 +94,6 @@ names(data2)
 
 # Outlier  detection - Univariate Approach (For Numeric)
 
-outliers = function(data){
-  for (i in 1:ncol(data)) {
-    outlier_values <- boxplot.stats(data[,i])$out
-  }
-}
 
 
 output = prediction(data$ACCT_ID__c,
