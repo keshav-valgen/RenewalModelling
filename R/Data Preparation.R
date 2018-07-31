@@ -1,33 +1,25 @@
 
+
+##################### Packages are reqiured ######################
 library(dplyr)
 library(sqldf)
 library(Metrics)
 names(data)
 
-# Finding recency
+###### Load the data ########################################
 data2 = read.csv("C:/Users/Sudhakar/Desktop/Renewal Mdelling/2.R.Data.Extraction.csv")
 
 # Separate all numeric columns
-library("dplyr")
 data_numeric = select_if(data2, is.numeric)
 data_categorical <- select_if(data2, is.factor)
 
-missing_mean <-  misssing_mean(data_numeric)
-missing_median <- misssing_median(data_numeric)
-missing_mode <- misssing_mode(data_numeric)
-missing_separate <- separate_missing_data(data2)
 # Handling Missing values with Mean, Median, Mode
-
 
 misssing_mean <- function(data){
   data <- lapply(data, function(x) ifelse(is.na(x), mean(x, na.rm = TRUE), x))
   data <- data.frame(data)
   return(data)
 }
-
-data3 <- lapply(data2, function(x) ifelse(is.na(x), which.max(x)))
-
-
 
 misssing_median <- function(data){
   data <- lapply(data, function(x) ifelse(is.na(x), median(x, na.rm = TRUE), x))
@@ -43,39 +35,28 @@ misssing_mode <- function(data){
        data[,i] <- ifelse(is.na(data[,i]),a$a,data[,i])
       }
   }
+  return(data)
 }
 
 separate_missing_data <- function(data){
   new_DF <- data[rowSums(is.na(data)) > 0,]
+  return(new_DF)
 }
 
-
-
-# Handling for categorical data
-#if(is.factor(data[,i])){
-# a = data[,i][which.max(data[,i])]
-# a = data.frame(a)
-# data[,i] <- ifelse(is.na(data[,i]),a$a,data[,i])
-# } else
-#
-#}
+missing_mean <-  misssing_mean(data_numeric)
+missing_median <- misssing_median(data_numeric)
+missing_mode <- misssing_mode(data_numeric)
+missing_separate <- separate_missing_data(data2)
 
 ############################ Handling Outliers with automation #########
-library(outliers)
-library(rAverage)
-data(pasta)
-model <- rav(pasta, subset="s04", lev=c(3,3), names=c("Price","Packaging"))
-outlier.replace(model, value=mean)
-outlier.replace(model, whichModel="IC", value=NA)
-
-outliers = function(data){
+outliers1 = function(data){
   for (i in 1:ncol(data)) {
-    outlier_values <- boxplot.stats(data[,i])$out
+    data[,i][data[,i] %in% boxplot.stats(data[,i])$out] <- median(data[,i])
   }
+  return(data)
 }
 
-out_data = outliers1(inputData)
-
+outlier_data = outliers1(data_numeric)
 ########################################################################
 
 
