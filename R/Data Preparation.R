@@ -4,12 +4,11 @@
 library(dplyr)
 library(sqldf)
 library(Metrics)
-names(data)
 
 ###### Load the data ########################################
 data2 = read.csv("C:/Users/Sudhakar/Desktop/Renewal Mdelling/2.R.Data.Extraction.csv")
 
-# Separate all numeric columns
+# Separate all numeric & Categorical columns
 data_numeric = select_if(data2, is.numeric)
 data_categorical <- select_if(data2, is.factor)
 
@@ -20,6 +19,7 @@ misssing_mean <- function(data){
   data <- data.frame(data)
   return(data)
 }
+
 
 misssing_median <- function(data){
   data <- lapply(data, function(x) ifelse(is.na(x), median(x, na.rm = TRUE), x))
@@ -48,6 +48,7 @@ missing_median <- misssing_median(data_numeric)
 missing_mode <- misssing_mode(data_numeric)
 missing_separate <- separate_missing_data(data2)
 
+missing_categorical <- misssing_mode(data_categorical)
 ############################ Handling Outliers with automation #########
 outliers1 = function(data){
   for (i in 1:ncol(data)) {
@@ -68,8 +69,6 @@ no_of_Accounts = sqldf("select RENEWAL_STATUS__C,count(RENEWAL_STATUS__C) as No_
 # no_of_orders = sqldf("select RENEWAL_STATUS__C,sum(NET_UNITS__c) as Of_units from data2 group by RENEWAL_STATUS__C")
 
 
-library(dplyr)
-library(sqldf)
 names(data2)
 
 
