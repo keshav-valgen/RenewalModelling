@@ -47,8 +47,14 @@ missing_mean <-  misssing_mean(data_numeric)
 missing_median <- misssing_median(data_numeric)
 missing_mode <- misssing_mode(data_numeric)
 missing_separate <- separate_missing_data(data2)
-
 missing_categorical <- misssing_mode(data_categorical)
+
+####### Modification Required if data changes
+data = cbind(missing_mean,missing_categorical[,-3], data2$ORDER_RENEWAL_DATE__c)
+for (i in ncol(data)) {
+  names(data)[i] <- "ORDER_RENEWAL_DATE__c"
+}
+
 ############################ Handling Outliers with automation #########
 outliers1 = function(data){
   for (i in 1:ncol(data)) {
@@ -57,11 +63,18 @@ outliers1 = function(data){
   return(data)
 }
 
-outlier_data = outliers1(data_numeric)
-########################################################################
+outlier_data = outliers1(data[,-22])
+
+data1 <- cbind(outlier_data, data2$ORDER_RENEWAL_DATE__c)
+
+for (i in ncol(data1)) {
+  names(data1)[i] <- "ORDER_RENEWAL_DATE__c"
+  }
 
 
-# Finding summary on the dependet variables
+
+
+########## Finding summary on the dependet variables
 no_of_Accounts = sqldf("select RENEWAL_STATUS__C,count(RENEWAL_STATUS__C) as No_Of_Accts
                        ,sum(NET_UNITS__c) as No_Of_units
                        ,count(ORDER_NUMBER__c) as no_of_orders from data2 group by RENEWAL_STATUS__c")
@@ -69,23 +82,8 @@ no_of_Accounts = sqldf("select RENEWAL_STATUS__C,count(RENEWAL_STATUS__C) as No_
 # no_of_orders = sqldf("select RENEWAL_STATUS__C,sum(NET_UNITS__c) as Of_units from data2 group by RENEWAL_STATUS__C")
 
 
-names(data2)
 
-
-# Outlier  detection - Univariate Approach (For Numeric)
-
-
-
-output = prediction(data$ACCT_ID__c,
-                    data$ORDER_TYPE__c,
-                    data$Name,
-                    data$ORDER_RENEWAL_DATE__c,
-                    data$NET_UNITS__c,
-                    data$PRICE_PER_UNIT__c,
-                    data$REVENUE__c)
-
-
-
+#### Creating RFMP Derived variables
 prediction <-  function(Customer_id,
                         Order_id,
                         product_name,
@@ -282,4 +280,34 @@ prediction <-  function(Customer_id,
 #output = prediction(data2$B2B_UniqueID, data2$Actual_Employee_Size_Location, data2$Primary_State, data2$Create.Date,data2$Actual_Sales_Volume_Location, data2$Corporate_Employee_Size.Location, data2$Number_of_Years_In_Business, 0.80)
 
 
-output1= prediction(data2$Customer_ID,data2$Order_num,data2$Product_Name,data2$Order_date, data2$Total_Units_Sold,data2$Price_per_unit, data2$Total_Price,0.80)
+output = prediction(data1$ACCT_ID__c,
+                    data1$ORDER_TYPE__c,
+                    data1$Name,
+                    data1$ORDER_RENEWAL_DATE__c,
+                    data1$NET_UNITS__c,
+                    data1$PRICE_PER_UNIT__c,
+                    data1$REVENUE__c)
+
+##### Handling sparse values
+sparse <- function(output){
+  a = c()
+  for (i in 1:ncol(output)) {
+  count3 <- length(which(output[,i] == 0))
+  if(count3 > 0){
+    per <- (count3/nrow(output))*100
+  } else {
+    per = 0
+  }
+  if(per > 0){
+    a[[i]] <- "TRUE"
+  } else {
+    a[[i]] <- "FALSE"
+  }
+  }
+  return(a)
+}
+processed_data <- sparse(output)
+
+new_data <- cbind(processed_data, data2$RENEWAL_STATUS__c)
+
+
