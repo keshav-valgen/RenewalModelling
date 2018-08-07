@@ -288,7 +288,7 @@ output = prediction(data1$ACCT_ID__c,
                     data1$PRICE_PER_UNIT__c,
                     data1$REVENUE__c)
 
-##### Handling sparse values
+##### Finding sparse value variables
 sparse <- function(output){
   a = c()
   for (i in 1:ncol(output)) {
@@ -298,7 +298,7 @@ sparse <- function(output){
   } else {
     per = 0
   }
-  if(per > 0){
+  if(per > 95){
     a[[i]] <- "TRUE"
   } else {
     a[[i]] <- "FALSE"
@@ -306,8 +306,37 @@ sparse <- function(output){
   }
   return(a)
 }
+
 processed_data <- sparse(output)
 
-new_data <- cbind(processed_data, data2$RENEWAL_STATUS__c)
+########## Remove Sparse Variables
+for (i in 1:ncol(output)) {
+  if (processed_data[i] == "TRUE") {
+  output <- output[,-i]
+  } else {
+    next
+  }
+}
+
+
+new_data <- cbind(output, data2$RENEWAL_STATUS__c)
+
+for (i in ncol(new_data)) {
+  names(new_data)[i] <- "RENEWAL_STATUS__c"
+}
+
+#### Handling dependent variables
+new_data$RENEWAL_STATUS__c <- as.numeric(new_data$RENEWAL_STATUS__c)
+
+# splitting data into train and test
+smp_size <- floor(0.80 * nrow(new_data))
+set.seed(123)
+train_ind <- sample(seq_len(nrow(new_data)), size = smp_size)
+
+train <- new_data[train_ind, ]
+test <- new_data[-train_ind, ]
+
+
+# Building the Multi Classification Model
 
 
