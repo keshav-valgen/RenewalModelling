@@ -337,6 +337,3 @@ train <- new_data[train_ind, ]
 test <- new_data[-train_ind, ]
 
 
-# Building the Multi Classification Model
-
-
