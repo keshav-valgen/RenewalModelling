@@ -325,8 +325,9 @@ for (i in ncol(new_data)) {
   names(new_data)[i] <- "RENEWAL_STATUS__c"
 }
 
+
 #### Handling dependent variables
-new_data$RENEWAL_STATUS__c <- as.numeric(new_data$RENEWAL_STATUS__c)
+new_data$RENEWAL_STATUS__c <- ifelse(new_data$RENEWAL_STATUS__c == "AUTO" | new_data$RENEWAL_STATUS__c == "RENEWED",1,0)
 
 # splitting data into train and test
 smp_size <- floor(0.80 * nrow(new_data))
