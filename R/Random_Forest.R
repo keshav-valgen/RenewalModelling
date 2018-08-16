@@ -7,6 +7,7 @@ predTrain <- predict(rf.fit, train[,-32], type = "class")
 predTrain = as.data.frame(predTrain)
 predTrain$predTrain <- round(predTrain$predTrain)
 
+
 ncol(train)
 # Handling varible importance
 indices <- which(varImp(rf.fit)$Overall >= 20)
