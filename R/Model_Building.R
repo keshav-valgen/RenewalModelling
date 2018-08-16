@@ -5,27 +5,23 @@ library(Matrix)
 library(data.table)
 library("caret")
 library(e1071)
-######### Random Forest Model
-################### Building the Multi Classification Model using xgboost ##########
+library(HH)
 
 
-# Logistic regression
+################ Logistic regression
 
-model <- glm (RENEWAL_STATUS__c ~ ., data = train, family = binomial)
+model <- glm (RENEWAL_STATUS__c ~ ., data = train, family = binomial(link="logit"))
 summary(model)
 
 predicted <- predict(model, test[,-32], type="response")
-predicted = as.data.frame(predicted)
-predicted$predicted <- ifelse(predicted$predicted >= 0.5, 1,0)
+glm_predicted = as.data.frame(predicted)
+glm_predicted$predicted <- ifelse(glm_predicted$predicted >= 0.5, 1,0)
 
-table(test$RENEWAL_STATUS__c, predicted$predicted)
+table(test$RENEWAL_STATUS__c, glm_predicted$predicted)
 
-##### Random forest #################################################
-
-rf <- randomForest(RENEWAL_STATUS__c ~ ., data = train)
-
-
-
+# Finding Multi-collinearity using Variance Inflation Factor
+vif_score <- vif(model)
+removed_vif <- as.data.frame(vif_score)
 
 
 # split train data and make xgb.DMatrix
