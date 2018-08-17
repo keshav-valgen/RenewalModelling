@@ -10,6 +10,7 @@ library(HH)
 
 ################ Logistic regression
 
+logistic_regression <- function(train, test){
 model <- glm (RENEWAL_STATUS__c ~ ., data = train, family = binomial(link="logit"))
 
 predicted <- predict(model, test[,-32], type="response")
@@ -42,7 +43,7 @@ glm_predicted$predicted <- ifelse(glm_predicted$predicted >= 0.5, 1,0)
 
 table(glm_test$RENEWAL_STATUS__c, glm_predicted$predicted)
 
-
+}
 
 
 
