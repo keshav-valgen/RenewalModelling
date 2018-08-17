@@ -1,6 +1,8 @@
 library(xgboost)
 library(Matrix)
 # split train data and make xgb.DMatrix
+
+
 train_data   <- train[,-32]
 test_data <- test[,-32]
 train_label  <- train$RENEWAL_STATUS__c
@@ -28,6 +30,7 @@ params <- list(
   max_delta_step = 5,
   colsample_bytree=1
 )
+
 #first default - model training
 xgb1 <- xgb.train(
   params = params
