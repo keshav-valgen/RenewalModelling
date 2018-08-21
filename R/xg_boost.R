@@ -42,4 +42,6 @@ xgb1 <- xgb.train(
 data_predict = predict(xgb1 , dtest)
 data_predict = as.data.frame(round(data_predict))
 names(data_predict)[1] = "Predicted_data"
-table(test$RENEWAL_STATUS__c, data_predict$Predicted_data)
+a = table(test$RENEWAL_STATUS__c, data_predict$Predicted_data)
+b <- (a[1,1] + a[2,2])/nrow(test)
+

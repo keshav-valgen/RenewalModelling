@@ -19,6 +19,7 @@ library(Metrics)
 
 
   myquery <- paste0('Select Id,',
+                    Customer_id,',',
                     Order_id,', ',
                     product_name,', ',
                     Date_purchase,', ',
@@ -31,8 +32,8 @@ library(Metrics)
   data1 <- rforcecom.bulkQuery(session, myquery, object)
 
   # Separate all numeric & Categorical columns
-  data_numeric = select_if(data1, is.numeric)
-  data_categorical <- select_if(data1, is.factor)
+  data_numeric = select_if(data2, is.numeric)
+  data_categorical <- select_if(data2, is.factor)
 
   # Handling Missing values with Mean, Median, Mode
 
@@ -87,20 +88,23 @@ library(Metrics)
 
   outlier_data = outliers1(data[,-22])
 
-  data1 <- cbind(outlier_data, data1$ORDER_RENEWAL_DATE__c)
+  data1 <- cbind(outlier_data, data2$ORDER_RENEWAL_DATE__c)
 
   for (i in ncol(data1)) {
     names(data1)[i] <- "ORDER_RENEWAL_DATE__c"
   }
 
-  output = prediction(data1$ACCT_ID__c,
-                      data1$ORDER_TYPE__c,
-                      data1$Name,
-                      data1$ORDER_RENEWAL_DATE__c,
-                      data1$NET_UNITS__c,
-                      data1$PRICE_PER_UNIT__c,
-                      data1$REVENUE__c)
-  ##### Finding sparse value variables
+source("R/rfmp_derived_variables.R")
+     output = prediction(data1$ACCT_ID__c,
+                       data1$ORDER_TYPE__c,
+                       data1$Name,
+                       data1$ORDER_RENEWAL_DATE__c,
+                       data1$NET_UNITS__c,
+                       data1$PRICE_PER_UNIT__c,
+                       data1$REVENUE__c)
+
+
+############ Finding sparse value variables
   sparse <- function(output){
     a = c()
     for (i in 1:ncol(output)) {
@@ -149,9 +153,29 @@ library(Metrics)
   train <- new_data[train_ind, ]
   test <- new_data[-train_ind, ]
 
-  logistic_output <- logistic_regression(train, test)
-  random_output <- forest_random(train, test)
-  extreme_output <- extereme_gradient(train, test)
+  #logistic_output <- logistic_regression(train, test)
+  #random_output <- forest_random(train, test)
+  #extreme_output <- extereme_gradient(train, test)
+
+  source("R/Model_Building.R")
+  source("R/xg_boost.R")
+
+  if (c > b) {
+    test <- cbind(test, glm_predicted$predicted)
+    print("Logistic Regression is Higher Accuracy")
+    #source("R/Update_salesforce.R")
+  } else {
+    test <- cbind(test, data_predict$Predicted_data)
+    print("Xtreme Gradient Boosting is Higher Accuracy")
+    #source("R/Update_salesforce.R")
+  }
+
+  colnames(data1) <- c("Id", newname)
+
+  updater(access_token, instance_url, object, data1)
+
+  return(data1)
+
 
 
 
