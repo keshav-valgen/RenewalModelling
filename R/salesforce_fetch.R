@@ -2,11 +2,11 @@ library(RForcecom)
 username <- "sudhakar@valgen.com"
 password <- "Mari@9164385223yW3h7K7eR80gwtS1LJDGTnSn" #password+securitytoken
 instanceURL <- "https://pvanalytics-dev-ed.my.salesforce.com/"
-apiVersion <- "26.0"
+apiVersion <- "41.0"
 session <- rforcecom.login(username, password, instanceURL, apiVersion)
 
-objectName <- "Leads"
-fields <- c("Id","Address","Campaign")
+objectName <- "Lead"
+fields <- c("Id","Name")
 a = rforcecom.retrieve(session, objectName, fields)
 
 
