@@ -66,6 +66,7 @@ library(Metrics)
     return(new_DF)
   }
 
+
   missing_mean <-  misssing_mean(data_numeric)
   missing_median <- misssing_median(data_numeric)
   missing_mode <- misssing_mode(data_numeric)
